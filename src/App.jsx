@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 
-const DEFAULT_API_KEY = '1f4a002debf1b5b7311d62da492d6918c84039997b0702284e211d85c2b0dad6'
+const DEFAULT_API_KEY = ''
 
 function App() {
   const [apiKey, setApiKey] = useState(localStorage.getItem('apiKey') || DEFAULT_API_KEY)
