@@ -116,6 +116,7 @@ function renderAdmin() {
                   <th>Year</th>
                   <th>Status</th>
                   <th>Added</th>
+                  <th>Qualities</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -163,6 +164,14 @@ function renderAdmin() {
             <button type="submit">Update Config</button>
           </form>
         </div>
+      </div>
+    </div>
+    
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
       </div>
     </div>
   `
@@ -277,28 +286,30 @@ async function loadAdminMovies(e) {
 }
 
 function displayMoviesTable(data) {
+  window.currentMovies = data.movies
   const table = document.getElementById('movies-table')
   const tbody = table.querySelector('tbody')
   const pagination = document.getElementById('pagination')
   
   tbody.innerHTML = data.movies?.map(movie => `
     <tr>
-      <td>${movie.title || movie.movieName || 'N/A'}</td>
-      <td>${movie.type || 'N/A'}</td>
-      <td>${movie.genre || 'N/A'}</td>
-      <td>${movie.year || 'N/A'}</td>
+      <td>${movie.Title || movie.movieName || 'N/A'}</td>
+      <td>${movie.Type || 'N/A'}</td>
+      <td>${movie.Genre || 'N/A'}</td>
+      <td>${movie.Year || 'N/A'}</td>
       <td>${movie.archived ? 'Archived' : 'Active'}</td>
       <td>${new Date(movie.addedAt).toLocaleDateString()}</td>
+      <td><button onclick="showQualities('${movie._id}')">View</button></td>
     </tr>
-  `).join('') || '<tr><td colspan="6">No movies found</td></tr>'
+  `).join('') || '<tr><td colspan="7">No movies found</td></tr>'
   
   const prevDisabled = data.page <= 1 ? 'disabled' : ''
   const nextDisabled = data.page >= data.pages ? 'disabled' : ''
   
   pagination.innerHTML = `
-    <button onclick="goToPage(${data.page - 1})" ${prevDisabled}>Previous</button>
-    <span>Page ${data.page} of ${data.pages} (${data.total} total)</span>
-    <button onclick="goToPage(${data.page + 1})" ${nextDisabled}>Next</button>
+    <button onclick="goToPage(${data.pagination.page - 1})" ${prevDisabled}>Previous</button>
+    <span>Page ${data.pagination.page} of ${data.pagination.pages} (${data.pagination.total} total)</span>
+    <button onclick="goToPage(${data.pagination.page + 1})" ${nextDisabled}>Next</button>
   `
   table.style.display = 'table'
 }
@@ -306,6 +317,35 @@ function displayMoviesTable(data) {
 window.goToPage = function(page) {
   document.getElementById('admin-page').value = page
   loadAdminMovies({ preventDefault: () => {} })
+}
+
+window.showQualities = function(movieId) {
+  const movie = window.currentMovies?.find(m => m._id === movieId)
+  if (movie && movie.qualities && movie.qualities.length > 0) {
+    let qualitiesHtml = ''
+    movie.qualities.forEach(qualityObj => {
+      Object.entries(qualityObj).forEach(([quality, urls]) => {
+        qualitiesHtml += `<h4>${quality}</h4><ul>`
+        urls.forEach(url => {
+          qualitiesHtml += `<li><a href="${url}" target="_blank">${url}</a></li>`
+        })
+        qualitiesHtml += '</ul>'
+      })
+    })
+    showModal(`Qualities for ${movie.Title || movie.movieName}`, qualitiesHtml)
+  } else {
+    showModal('No Qualities', 'No qualities found for this movie')
+  }
+}
+
+function showModal(title, content) {
+  document.getElementById('modal-title').textContent = title
+  document.getElementById('modal-body').innerHTML = content
+  document.getElementById('modal').style.display = 'block'
+}
+
+window.closeModal = function() {
+  document.getElementById('modal').style.display = 'none'
 }
 
 window.addMultipleMovies = async function() {
