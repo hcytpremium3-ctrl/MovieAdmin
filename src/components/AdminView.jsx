@@ -58,7 +58,7 @@ function AdminView({ apiKey, showModal }) {
 
   return (
     <div className="section">
-      <h2>Admin Movies View</h2>
+      <h2>Movies View</h2>
       <form onSubmit={(e) => { e.preventDefault(); loadMovies() }}>
         <input
           type="text"
@@ -102,7 +102,6 @@ function AdminView({ apiKey, showModal }) {
           <tr>
             <th>Title</th>
             <th>Type</th>
-            <th>Genre</th>
             <th>Year</th>
             <th>Status</th>
             <th>Added</th>
@@ -114,7 +113,6 @@ function AdminView({ apiKey, showModal }) {
             <tr key={movie._id}>
               <td>{movie.Title || movie.movieName || 'N/A'}</td>
               <td>{movie.Type || 'N/A'}</td>
-              <td>{movie.Genre || 'N/A'}</td>
               <td>{movie.Year || 'N/A'}</td>
               <td>{movie.archived ? 'Archived' : 'Active'}</td>
               <td>{new Date(movie.addedAt).toLocaleDateString()}</td>

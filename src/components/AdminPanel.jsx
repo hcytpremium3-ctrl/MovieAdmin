@@ -27,8 +27,8 @@ function AdminPanel({ apiKey, onLogout }) {
 
       <div className="tabs">
         {[
-          { id: 'admin', label: 'Admin View' },
-          { id: 'movies', label: 'Movies' },
+          { id: 'admin', label: 'View' },
+          { id: 'movies', label: 'Edit' },
           { id: 'posters', label: 'Posters' },
           { id: 'streams', label: 'Streams' },
           { id: 'config', label: 'Config' }
