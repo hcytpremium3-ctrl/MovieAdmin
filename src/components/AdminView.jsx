@@ -97,15 +97,15 @@ function AdminView({ apiKey, showModal }) {
         <button type="submit">Load Movies</button>
       </form>
 
-      <table style={{ display: movies.length ? 'table' : 'none' }}>
+       <table style={{ display: movies.length ? 'table' : 'none' }}>
         <thead>
           <tr>
             <th>Title</th>
             <th>Type</th>
+            <th>Genre</th>
             <th>Year</th>
             <th>Status</th>
             <th>Added</th>
-            <th>Qualities</th>
           </tr>
         </thead>
         <tbody>
@@ -113,10 +113,10 @@ function AdminView({ apiKey, showModal }) {
             <tr key={movie._id}>
               <td>{movie.Title || movie.movieName || 'N/A'}</td>
               <td>{movie.Type || 'N/A'}</td>
+              <td>{movie.Genre || 'N/A'}</td>
               <td>{movie.Year || 'N/A'}</td>
               <td>{movie.archived ? 'Archived' : 'Active'}</td>
               <td>{new Date(movie.addedAt).toLocaleDateString()}</td>
-              <td><button onClick={() => showQualities(movie._id)}>View</button></td>
             </tr>
           ))}
         </tbody>
