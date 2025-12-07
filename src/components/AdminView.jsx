@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
 import { apiRequest } from '../utils/api'
 
 function AdminView({ apiKey, showModal }) {
@@ -24,7 +25,7 @@ function AdminView({ apiKey, showModal }) {
       setMovies(result.movies || [])
       setPagination(result.pagination || { page: 1, pages: 1, total: 0 })
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 

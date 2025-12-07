@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 
@@ -22,6 +23,7 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-right" />
       {isLoggedIn ? (
         <AdminPanel apiKey={apiKey} onLogout={handleLogout} />
       ) : (

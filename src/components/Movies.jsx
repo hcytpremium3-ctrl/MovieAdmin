@@ -1,13 +1,21 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { apiRequest } from '../utils/api'
 
 function Movies({ apiKey }) {
   const [scrapeResults, setScrapeResults] = useState('')
   const [moviesJson, setMoviesJson] = useState('')
+  const [addMoviesResult, setAddMoviesResult] = useState(null)
+  const [skipQuality, setSkipQuality] = useState(false)
   const [imdbId, setImdbId] = useState('')
   const [scrapeUrl, setScrapeUrl] = useState('https://movies4u.exposed/')
   const [scrapeType, setScrapeType] = useState('movie')
   const [qualities, setQualities] = useState({ page: 1, limit: 10, usePixel: true, type: 'movie' })
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(scrapeResults)
+    toast.success('Copied to clipboard')
+  }
 
   const scrapeMovies = async (e) => {
     e.preventDefault()
@@ -17,9 +25,9 @@ function Movies({ apiKey }) {
         body: JSON.stringify({ url: scrapeUrl, type: scrapeType })
       }, apiKey)
       setScrapeResults(JSON.stringify(result, null, 2))
-      alert('Scraping completed successfully')
+      toast.success('Scraping completed successfully')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
@@ -30,43 +38,46 @@ function Movies({ apiKey }) {
         body: JSON.stringify({ url: scrapeUrl, type: scrapeType })
       }, apiKey)
       setScrapeResults(JSON.stringify(result, null, 2))
-      alert('Single scraping completed successfully')
+      toast.success('Single scraping completed successfully')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
   const addMultipleMovies = async () => {
     try {
-      const movies = JSON.parse(moviesJson)
-      await apiRequest('/movies/add-movie-multiple', {
+      let movies = JSON.parse(moviesJson)
+      if (!Array.isArray(movies)) {
+        movies = [movies]
+      }
+      const result = await apiRequest('/movies/add-movie-multiple', {
         method: 'POST',
-        body: JSON.stringify({ movies })
+        body: JSON.stringify({ movies, skipQuality })
       }, apiKey)
-      alert('Movies added successfully')
-      setMoviesJson('')
+      setAddMoviesResult(result)
+      toast.success(`Inserted: ${result.inserted}, Skipped: ${result.skipped}`)
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
   const archiveDuplicates = async () => {
     try {
       await apiRequest('/movies/archive-duplicates', { method: 'POST' }, apiKey)
-      alert('Duplicates archived successfully')
+      toast.success('Duplicates archived successfully')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
   const deleteByImdb = async () => {
-    if (!imdbId) return alert('Enter IMDB ID')
+    if (!imdbId) return toast.error('Enter IMDB ID')
     try {
       await apiRequest(`/movies/imdb/${imdbId}`, { method: 'DELETE' }, apiKey)
-      alert('Movie deleted successfully')
+      toast.success('Movie deleted successfully')
       setImdbId('')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
@@ -77,9 +88,9 @@ function Movies({ apiKey }) {
         method: 'POST',
         body: JSON.stringify(qualities)
       }, apiKey)
-      alert('Qualities updated successfully')
+      toast.success('Qualities updated successfully')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
@@ -102,7 +113,23 @@ function Movies({ apiKey }) {
           <button type="submit">Start Scraping</button>
           <button type="button" onClick={scrapeSingle}>Scrape Single</button>
         </form>
-        {scrapeResults && <pre>{scrapeResults}</pre>}
+        {scrapeResults && (
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={copyToClipboard}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                padding: '5px 10px',
+                fontSize: '12px'
+              }}
+            >
+              Copy
+            </button>
+            <pre>{scrapeResults}</pre>
+          </div>
+        )}
       </div>
 
       <div className="section">
@@ -112,7 +139,39 @@ function Movies({ apiKey }) {
           onChange={(e) => setMoviesJson(e.target.value)}
           placeholder='[{"movieName":"Movie 1","url":[{"480p":"url1"}],"imdbUrl":"https://imdb.com/title/tt1234567/"}]'
         />
+        <label>
+          <input
+            type="checkbox"
+            checked={skipQuality}
+            onChange={(e) => setSkipQuality(e.target.checked)}
+          />
+          Skip Quality
+        </label>
         <button onClick={addMultipleMovies}>Add Multiple</button>
+        {addMoviesResult && (
+          <div style={{ marginTop: '15px' }}>
+            <h3>Results: Inserted: {addMoviesResult.inserted} | Skipped: {addMoviesResult.skipped}</h3>
+            {addMoviesResult.results?.map((movie, idx) => (
+              <div
+                key={idx}
+                style={{
+                  padding: '10px',
+                  margin: '5px 0',
+                  backgroundColor: movie.skipped ? '#ffe6e6' : '#e6ffe6',
+                  border: `1px solid ${movie.skipped ? '#ff4444' : '#44ff44'}`,
+                  borderRadius: '4px'
+                }}
+              >
+                <strong>{movie.movieName}</strong>
+                {movie.skipped && (
+                  <div style={{ color: '#cc0000', marginTop: '5px' }}>
+                    Reason: {movie.reason}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="section">

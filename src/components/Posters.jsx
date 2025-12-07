@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { apiRequest } from '../utils/api'
 
 function Posters({ apiKey }) {
@@ -13,10 +14,10 @@ function Posters({ apiKey }) {
         method: 'POST',
         body: JSON.stringify({ imdbIds: ids })
       }, apiKey)
-      alert('Poster movies set successfully')
+      toast.success('Poster movies set successfully')
       setImdbIds('')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
@@ -24,8 +25,9 @@ function Posters({ apiKey }) {
     try {
       const result = await apiRequest(`/image/check-posters?limit=${posterLimit}`, {}, apiKey)
       setPosterResults(JSON.stringify(result, null, 2))
+      toast.success('Posters checked successfully')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 

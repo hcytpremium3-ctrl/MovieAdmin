@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { apiRequest } from '../utils/api'
 
 function Streams({ apiKey }) {
@@ -11,10 +12,10 @@ function Streams({ apiKey }) {
         method: 'POST',
         body: JSON.stringify(stream)
       }, apiKey)
-      alert('Stream added successfully')
+      toast.success('Stream added successfully')
       setStream({ title: '', url: '', vip: false })
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 

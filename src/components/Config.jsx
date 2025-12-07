@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { apiRequest } from '../utils/api'
 
 function Config({ apiKey }) {
@@ -20,9 +21,9 @@ function Config({ apiKey }) {
           appUrls
         })
       }, apiKey)
-      alert('Config updated successfully')
+      toast.success('Config updated successfully')
     } catch (error) {
-      alert('Error: ' + error.message)
+      toast.error('Error: ' + error.message)
     }
   }
 
